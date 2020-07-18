@@ -158,7 +158,7 @@
   typedef float f32;
   typedef double f64;
   typedef size_t uxx;
-  typedef ssize_t bxx;
+  typedef intptr_t bxx;
   typedef intptr_t imm;
   typedef uintptr_t umm;
 #endif
@@ -770,7 +770,7 @@ MPEPolyNode* MPE_PolyNode(MPEPolyContext* PolyContext, MPEPolyPoint* Point, MPEP
   return Result;
 }
 
-internal_static
+internal_static MPE_INLINE
 MPEPolyPoint* MPE_PolyPushPoint(MPEPolyContext* PolyContext)
 {
   MPE_Assert(PolyContext->MaxPointCount > PolyContext->PointPoolCount);
@@ -778,7 +778,7 @@ MPEPolyPoint* MPE_PolyPushPoint(MPEPolyContext* PolyContext)
   return Result;
 }
 
-internal_static
+internal_static MPE_INLINE
 MPEPolyPoint* MPE_PolyPushPointArray(MPEPolyContext* PolyContext, u32 Count)
 {
   MPE_Assert(PolyContext->MaxPointCount > (PolyContext->PointPoolCount+Count));
@@ -807,8 +807,10 @@ MPEPolyNode* MPE_LocatePoint(MPEPolyContext* PolyContext, MPEPolyPoint* Point)
 
   if (PX < NX)
   {
-    while ((Node = Node->Prev))
-    {
+      while (true)
+      {
+          Node = Node->Prev;
+          if (!Node) break;
       if (Point == Node->Point)
       {
         break;
@@ -833,8 +835,10 @@ MPEPolyNode* MPE_LocatePoint(MPEPolyContext* PolyContext, MPEPolyPoint* Point)
   }
   else
   {
-    while ((Node = Node->Next))
-    {
+      while (true)
+      {
+          Node = Node->Next;
+          if (!Node) break;
       if (Point == Node->Point)
       {
         break;
@@ -2023,8 +2027,10 @@ void MPE_PolyTriangulate(MPEPolyContext* PolyContext)
         Node = PolyContext->SearchNode;
         if (Point->X < Node->Value)
         {
-          while ((Node = Node->Prev))
-          {
+            while (true)
+            {
+                Node = Node->Prev;
+                if (!Node) break;
             if (Point->X >= Node->Value)
             {
               PolyContext->SearchNode = Node;
@@ -2034,8 +2040,10 @@ void MPE_PolyTriangulate(MPEPolyContext* PolyContext)
         }
         else
         {
-          while ((Node = Node->Next))
+          while (true)
           {
+              Node = Node->Next;
+              if (!Node) break;
             if (Point->X < Node->Value)
             {
               PolyContext->SearchNode = Node->Prev;
